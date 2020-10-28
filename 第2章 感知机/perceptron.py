@@ -80,9 +80,9 @@ class Perceptron:
 
 if __name__ == '__main__':
     # 读取训练数据集
-    train_data, train_lbl = load_data("train.txt")
+    train_data, train_lbl = load_data("../data/train.txt")
     # 读取测试数据集
-    test_data, test_lbl   = load_data("test.txt")
+    test_data, test_lbl = load_data("../data/test.txt")
     # 感知机算法
     p = Perceptron(train_data, train_lbl, test_data, test_lbl,
                    lr=0.0001, epoch=75)
