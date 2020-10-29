@@ -20,7 +20,7 @@ def load_data(file_name):
             else:
                 labels.append(1)
             # 添加特征向量
-            features.append([float(num) for num in line[0:9]])
+            features.append([float(num) for num in line[0:8]])
 
     return features, labels
 

@@ -21,7 +21,7 @@ def load_data(file_name):
             # 添加标签向量
             labels.append(line[-1])
             # 添加特征向量
-            attrs.append([x for x in line[0:9]])
+            attrs.append([x for x in line[0:8]])
 
     return attrs, labels
 
