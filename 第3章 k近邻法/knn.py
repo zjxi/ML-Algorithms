@@ -49,7 +49,7 @@ class KNN:
         构造平衡kd树
         :return:
         """
-
+        pass
 
     def search_kd_tree(self):
         """
