@@ -2,6 +2,7 @@
     Implementation of the K nearest neighbor,
     written by zjxi, 2020/10/24
 """
+
 import numpy as np
 
 
@@ -19,6 +20,10 @@ def load_data(file_name):
             features.append(line[0:8])
 
     return features, labels
+
+class Node:
+    def __init__(self):
+
 
 
 class KNN:
@@ -39,12 +44,12 @@ class KNN:
         """
         return np.sqrt(np.sum(np.square(xi - xj)))
 
-    def create_kd_tree(self):
+    def create_kd_tree(self, points, depth):
         """
         构造平衡kd树
         :return:
         """
-        pass
+
 
     def search_kd_tree(self):
         """
