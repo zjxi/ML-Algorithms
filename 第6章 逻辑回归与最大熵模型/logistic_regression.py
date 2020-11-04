@@ -25,7 +25,7 @@ def load_data(filename):
 
 
 class LogisticRegression:
-    def __init__(self, trainData, trainLbl, testData, testLbl, lr=0.0001, epoch=50):
+    def __init__(self, trainData, trainLbl, testData, testLbl, lr, epoch):
         """
         初始化逻辑回归的各类参数
         :param trainData: 训练特征向量集
@@ -41,7 +41,6 @@ class LogisticRegression:
         self.test_label = testLbl
         self.epoch = epoch
         # 初始化权重，学习率
-        print(np.shape(self.train_label))
         self.w = np.zeros((1, np.shape(self.train_data)[1]))
         self.lr = lr
         # 分别将特征向量、标签向量转化为矩阵并进行相应的转置变化
@@ -57,7 +56,7 @@ class LogisticRegression:
         """
         m, n = np.shape(self.train_data)
         for k in range(self.epoch):
-            print(f"---当前迭代轮数为:{k}---")
+            print(f"---当前迭代轮数为:{k+1}---")
             for i in range(m):
                 # 获取当前特征向量
                 xi = self.train_data[i]
@@ -65,14 +64,15 @@ class LogisticRegression:
                 yi = self.train_label[i]
                 # 结合公式6.5和6.6，可以得到以下过程
                 # P(Y=1|x) = P_y1_x, P(Y=0|x) = P_y0_x
-                P_y1_x = np.exp(self.w * xi) / (1 + np.exp(self.w * xi))
-                P_y0_x = 1 / (1 + np.exp(self.w * xi))
+                P_y1_x = np.exp(self.w * xi.T) / (1 + np.exp(self.w * xi.T))
+                P_y0_x = 1 / (1 + np.exp(self.w * xi.T))
                 # 当分类错误时，根据6.1.3-模型参数估计部分，进行对数似然估计
                 # 并且进行最大似然估计值，即通过梯度下降法
-                if P_y1_x > P_y0_x and yi != 1 or P_y1_x < P_y0_x and yi != 0:
+                if P_y1_x - P_y0_x >= 0 and yi != 1 or P_y1_x - P_y0_x <= 0 and yi != 0:
                     # w = w + α Σ (h(w)-yi)xi, 其中h(w) = P(Y=1|x)
                     # 通过观察h(w)可以由P(Y=1|x)等价替换，即P_y1_x
-                    self.w = self.w + self.lr * (P_y1_x - yi) * xi
+                    self.w = self.w - self.lr * (P_y1_x - yi) * xi
+
         print("训练结束！")
 
     def test(self):
@@ -90,8 +90,8 @@ class LogisticRegression:
             # 获取测试集的标签向量
             yi = self.test_label[i]
             # 这里的w权重值已经通过逻辑回归算法训练迭代得到
-            P_y1_x = np.exp(self.w * xi) / (1 + np.exp(self.w * xi))
-            P_y0_x = 1 / (1 + np.exp(self.w * xi))
+            P_y1_x = np.exp(self.w * xi.T) / (1 + np.exp(self.w * xi.T))
+            P_y0_x = 1 / (1 + np.exp(self.w * xi.T))
             if P_y1_x > P_y0_x and yi != 1 or P_y1_x < P_y0_x and yi != 0:
                 errs += 1
 
