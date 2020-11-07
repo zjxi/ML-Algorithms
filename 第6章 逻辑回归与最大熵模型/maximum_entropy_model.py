@@ -49,12 +49,88 @@ class MaxEntropyModel:
         self.test_data = np.mat(self.test_data)
         self.test_label = np.mat(self.test_label).T
 
+    def IIS(self):
+        pass
+
     def training(self):
         pass
 
     def test(self):
         pass
 
+
+def encode(featureset, label, mapping):
+    encoding = []
+    for (fname, fval) in featureset.items():
+        if (fname, fval, label) in mapping:
+            encoding.append((mapping[(fname, fval, label)], 1))
+    return encoding
+
+
+def calculate_empirical_fcount(train_toks, mapping):
+    fcount = np.zeros(len(mapping))
+    for tok, label in train_toks:
+        for (index, val) in encode(tok, label, mapping):
+            fcount[index] += val
+    return fcount
+
+
+def prob(tok, labels, mapping, weights):
+    prob_dict = {}
+    for label in labels:
+        total = 0.0
+        for (index, val) in encode(tok, label, mapping):
+            total += weights[index] * val
+        prob_dict[label] = np.exp(total)
+    value_sum = sum(list(prob_dict.values()))
+    for (label, value) in prob_dict.items():
+        prob_dict[label] = prob_dict[label] / value_sum
+    return prob_dict
+
+
+def calculate_estimated_fcount(train_toks, mapping, labels, weights):
+    fcount = np.zeros(len(mapping))
+    for tok, label in train_toks:
+        prob_dict = prob(tok, labels, mapping, weights)
+        for label, p in prob_dict.items():
+            for (index, val) in encode(tok, label, mapping):
+                fcount[index] += p * val
+    return fcount
+
+
+def maxent_train(train_toks):
+    mapping = {}  # maps (fname, fval, label) -> fid
+    labels = set()
+    feature_name = set()
+    for (tok, label) in train_toks:
+        for (fname, fval) in tok.items():
+            if (fname, fval, label) not in mapping:
+                mapping[(fname, fval, label)] = len(mapping)
+            feature_name.add(fname)
+        labels.add(label)
+    C = len(feature_name) + 1
+    Cinv = 1 / C
+    empirical_fcount = calculate_empirical_fcount(train_toks, mapping)
+    weights = np.zeros(len(empirical_fcount))
+
+    iter = 1
+    while True:
+        if iter == 100:
+            break
+        estimated_fcount = calculate_estimated_fcount(train_toks, mapping, labels, weights)
+        weights += (empirical_fcount / estimated_fcount) * Cinv
+        iter += 1
+    return weights, labels, mapping
+
+
 if __name__ == '__main__':
+    train_data = [
+        (dict(a=1, b=1, c=1), '1'),
+        (dict(a=1, b=1, c=0), '0'),
+        (dict(a=0, b=1, c=1), '1')]
+
+    maxent_train(train_data)
+
+
 
 
