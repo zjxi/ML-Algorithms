@@ -27,3 +27,7 @@ def load_data(filename):
 class AdaBoost:
     def __init__(self):
         pass
+    
+
+if __name__ == '__main__':
+    pass
