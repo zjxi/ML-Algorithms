@@ -25,8 +25,29 @@ def load_data(filename):
 
 
 class AdaBoost:
-    def __init__(self):
-        pass
+    def __init__(self, trainData, trainLbl, testData, testLbl, lr, epoch):
+        """
+        初始化逻辑回归的各类参数
+        :param trainData: 训练特征向量集
+        :param trainLbl: 训练标签向量集
+        :param testData: 测试特征向量集
+        :param testLbl: 测试标签向量集
+        :param lr: 学习率
+        :param epoch: 训练迭代轮数
+        """
+        self.train_data = trainData
+        self.train_label = trainLbl
+        self.test_data = testData
+        self.test_label = testLbl
+        self.epoch = epoch
+        # 初始化权重，学习率
+        self.w = np.zeros((1, np.shape(self.train_data)[1]))
+        self.lr = lr
+        # 分别将特征向量、标签向量转化为矩阵并进行相应的转置变化
+        self.train_data = np.mat(self.train_data)
+        self.train_label = np.mat(self.train_label).T
+        self.test_data = np.mat(self.test_data)
+        self.test_label = np.mat(self.test_label).T
 
     def training(self):
         pass
