@@ -17,7 +17,7 @@ def load_data(filename):
         for line in fr.readlines():
             line = line.strip('\n').split(',')
             # 添加标签向量
-            label.append(int(line[-1]))
+            label.append(-1 if int(line[-1]) == 0 else 1)
             # 添加特征向量
             feat.append([float(e) for e in line[:-1]])
 
@@ -57,4 +57,7 @@ class AdaBoost:
     
 
 if __name__ == '__main__':
-    pass
+    # 读取训练数据集
+    train_data, train_lbl = load_data("../data/train.txt")
+    # 读取测试数据集
+    test_data, test_lbl = load_data("../data/test.txt")
