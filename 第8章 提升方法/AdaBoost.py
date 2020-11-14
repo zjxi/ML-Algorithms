@@ -181,7 +181,7 @@ if __name__ == '__main__':
 
     # AdaBoost算法流程
     ab = AdaBoost(train_data, train_lbl, test_data, test_lbl,
-                  epoch=200)
+                  epoch=50)
     # 训练
     ab.training()
     # 测试，并计算算法分类准确率
