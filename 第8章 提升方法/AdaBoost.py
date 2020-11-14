@@ -64,6 +64,8 @@ class AdaBoost:
         :return: 类别(-1/1)
         """
         # 根据训练集数据分布情况进行自定义弱8个学习分类器的输入阈值
+        # 这里为本人随意初始化的，初始误差较大，根据不同数据集请自行设置
+        # 相应的弱学习分类阈值，自行优化
         G_mx = [3.5, 130, 60, 30.5, 200, 35.5, 0.5, 40.5]
         # 根据8.1.3的例8.1的步骤(a)制定决策规则
         return -1 if xi < G_mx[idx] else 1
@@ -118,7 +120,7 @@ class AdaBoost:
         for m in range(self.epoch):
             # 获取最小分类误差率em
             e_m, G_idx = self.calc_classify_err()
-            # print(e_m ,G_idx)
+            print(e_m ,G_idx)
             # 获取Gm(x)的系数am
             a_m = self.calc_am_coefficient(e_m)
             # 计算规范化因子
