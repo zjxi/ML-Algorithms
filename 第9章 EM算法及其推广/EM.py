@@ -20,7 +20,7 @@ def load_data(filename):
             label.append(int(line[-1]))
             # 添加特征向量
             feat.append([float(e) for e in line[:-1]])
-
+    
     return feat, label
 
 
@@ -59,3 +59,4 @@ if __name__ == '__main__':
     # EM算法流程
     em = EM(train_data, train_lbl, test_data, test_lbl,
             epoch=50)
+
