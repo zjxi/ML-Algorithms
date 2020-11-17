@@ -1,5 +1,5 @@
 """
-    Implementation of the logistic regression and maximum entropy model,
+    Implementation of the logistic regression,
     written by zjxi @ 2020/11/3
 """
 

@@ -49,6 +49,15 @@ class MaxEntropyModel:
         self.test_data = np.mat(self.test_data)
         self.test_label = np.mat(self.test_label).T
 
+    def calc_empirical_distribution(self):
+        mapping = ()
+        P_xy = {}
+        P_x = {}
+        for feat, lbl in zip(self.train_data, self.train_label):
+            P_xy[(feat, lbl)] += 1
+            P_x[feat] += 1
+        return P_xy, P_x
+
     def IIS(self):
         pass
 
@@ -129,7 +138,7 @@ if __name__ == '__main__':
         (dict(a=1, b=1, c=0), '0'),
         (dict(a=0, b=1, c=1), '1')]
 
-    maxent_train(train_data)
+    print(maxent_train(train_data))
 
 
 

@@ -20,7 +20,7 @@ def load_data(file_name):
             else:
                 labels.append(1)
             # 添加特征向量
-            features.append([float(num) for num in line[0:8]])
+            features.append([float(num) for num in line[:-1]])
 
     return features, labels
 
@@ -33,7 +33,6 @@ class Perceptron:
         self.test_label = testLbl
         self.epoch = epoch
         # 初始化权重，偏置项，学习率
-        print(np.shape(self.train_data))
         self.w = np.zeros((1, np.shape(self.train_data)[1]))
         self.b = 0
         self.lr = lr
@@ -85,7 +84,7 @@ if __name__ == '__main__':
     test_data, test_lbl = load_data("../data/test.txt")
     # 感知机算法
     p = Perceptron(train_data, train_lbl, test_data, test_lbl,
-                   lr=0.0001, epoch=75)
+                   lr=0.0001, epoch=80)
     # 训练模型
     p.train()
     # 测试模型

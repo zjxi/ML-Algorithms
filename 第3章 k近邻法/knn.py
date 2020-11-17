@@ -19,9 +19,9 @@ def loadData(filePath):  # 读文件
 
 class kdNode:
     # 分支结点
-    def __init__(self, demo, value, left, right):
+    def __init__(self, dim, value, left, right):
         # 切割维度，切割值，左子树，右子树
-        self.demo = demo
+        self.dim = dim
         self.value = value
         self.left = left
         self.right = right
@@ -57,7 +57,6 @@ class kdtree:
         """
         创建一个分支结点
         """
-
         def createNode(data):
             split_dimension, maxv = getMaxDimension(data)
             # split_dimension， maxv分别指划分轴（维度）和最大方差值
