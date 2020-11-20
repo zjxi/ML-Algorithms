@@ -5,126 +5,137 @@
 
 import numpy as np
 
-# 状态 1 2 3
-A = [[0.5, 0.2, 0.3],
-     [0.3, 0.5, 0.2],
-     [0.2, 0.3, 0.5]]
 
-pi = [0.2, 0.4, 0.4]
+class HMM:
+    def __init__(self):
+        # 初始概率分布
+        self.pi = [0.2, 0.4, 0.4]
 
-# red white
-B = [[0.5, 0.5],
-     [0.4, 0.6],
-     [0.7, 0.3]]
+        # 状态转移概率分布矩阵 (1、2、3)
+        self.A = [[0.5, 0.2, 0.3],
+                  [0.3, 0.5, 0.2],
+                  [0.2, 0.3, 0.5]]
 
+        # 观测概率分布(红、白)
+        self.B = [[0.5, 0.5],
+                  [0.4, 0.6],
+                  [0.7, 0.3]]
+        # 观测序列
+        self.O = [0, 1, 0, 1]
 
-# 前向算法
-def hmm_forward(A, B, pi, O):
-    T = len(O)
-    N = len(A[0])
-    # step1 初始化
-    alpha = [[0] * T for _ in range(N)]
-    for i in range(N):
-        alpha[i][0] = pi[i] * B[i][O[0]]
+    def hmm_forward(self):
+        """
+        观测序列概率的前向算法
+        :return: 观测序列概率P(O|λ)、前向概率alpha
+        """
+        # 算法10.2的流程
+        T = len(self.O)
+        N = len(self.A[0])
 
-    # step2 计算alpha(t)
-    for t in range(1, T):
+        # (1) 初值
+        alpha = np.zeros((N, T))
         for i in range(N):
-            temp = 0
-            for j in range(N):
-                temp += alpha[j][t - 1] * A[j][i]
-            alpha[i][t] = temp * B[i][O[t]]
+            alpha[i][0] = self.pi[i] * self.B[i][self.O[0]]
 
-    # step3
-    proba = 0
-    for i in range(N):
-        proba += alpha[i][-1]
-    return proba, alpha
+        # (2) 递推, 计算前向概率alpha(t)
+        for t in range(1, T):
+            for i in range(N):
+                temp = 0
+                for j in range(N):
+                    temp += alpha[j][t - 1] * self.A[j][i]
+                alpha[i][t] = temp * self.B[i][self.O[t]]
 
-
-A = [[0.5, 0.2, 0.3], [0.3, 0.5, 0.2], [0.2, 0.3, 0.5]]
-B = [[0.5, 0.5], [0.4, 0.6], [0.7, 0.3]]
-pi = [0.2, 0.4, 0.4]
-O = [0, 1, 0, 1]
-print(hmm_forward(A, B, pi, O))  # acc为 0.06009
-
-
-# 后向算法
-def hmm_backward(A, B, pi, O):
-    T = len(O)
-    N = len(A[0])
-    # step1 初始化
-    beta = [[0] * T for _ in range(N)]
-    for i in range(N):
-        beta[i][-1] = 1
-
-    # step2 计算beta(t)
-    for t in reversed(range(T - 1)):
+        # (3) 终止
+        prob = 0
         for i in range(N):
-            for j in range(N):
-                beta[i][t] += A[i][j] * B[j][O[t + 1]] * beta[j][t + 1]
+            prob += alpha[i][-1]
 
-    # step3
-    proba = 0
-    for i in range(N):
-        proba += pi[i] * B[i][O[0]] * beta[i][0]
-    return proba, beta
+        return prob, alpha
 
+    def hmm_backward(self):
+        """
+        观测序列概率的后向算法
+        :return: 观测序列概率P(O|λ)、后向概率beta
+        """
+        # 算法10.3的流程
+        T = len(self.O)
+        N = len(self.A[0])
 
-A = [[0.5, 0.2, 0.3], [0.3, 0.5, 0.2], [0.2, 0.3, 0.5]]
-B = [[0.5, 0.5], [0.4, 0.6], [0.7, 0.3]]
-pi = [0.2, 0.4, 0.4]
-O = [0, 1, 0, 1]
-print(hmm_backward(A, B, pi, O))  # acc为 0.06009
-
-
-# 维特比算法
-def hmm_viterbi(A, B, pi, O):
-    T = len(O)
-    N = len(A[0])
-
-    delta = [[0] * N for _ in range(T)]
-    psi = [[0] * N for _ in range(T)]
-
-    # step1: init
-    for i in range(N):
-        delta[0][i] = pi[i] * B[i][O[0]]
-        psi[0][i] = 0
-
-    # step2: iter
-    for t in range(1, T):
+        # (1) 初值
+        beta = np.zeros((N, T))
         for i in range(N):
-            temp, maxindex = 0, 0
-            for j in range(N):
-                res = delta[t - 1][j] * A[j][i]
-                if res > temp:
-                    temp = res
-                    maxindex = j
+            beta[i][-1] = 1
 
-            delta[t][i] = temp * B[i][O[t]]  # delta
-            psi[t][i] = maxindex
+        # (2) 递推, 计算后向概率beta(t)
+        for t in reversed(range(T - 1)):
+            for i in range(N):
+                for j in range(N):
+                    beta[i][t] += self.A[i][j] * self.B[j][self.O[t + 1]] * beta[j][t + 1]
 
-    # step3: end
-    p = max(delta[-1])
-    for i in range(N):
-        if delta[-1][i] == p:
-            i_T = i
+        # (3) 终止
+        prob = 0
+        for i in range(N):
+            prob += self.pi[i] * self.B[i][self.O[0]] * beta[i][0]
 
-    # step4：backtrack
-    path = [0] * T
-    i_t = i_T
-    for t in reversed(range(T - 1)):
-        i_t = psi[t + 1][i_t]
-        path[t] = i_t
-    path[-1] = i_T
+        return prob, beta
 
-    return delta, psi, path
+    def hmm_viterbi(self):
+        """
+        维特比算法
+        :return: 最优路径I*
+        """
+        # 算法10.5的流程
+        global i_T
+        T = len(self.O)
+        N = len(self.A[0])
+
+        delta = np.zeros((T, N))
+        psi   = np.zeros((T, N), dtype=int)
+
+        # step1: 初始化
+        for i in range(N):
+            delta[0][i] = self.pi[i] * self.B[i][self.O[0]]
+            psi[0][i] = 0
+
+        # step2: 递推
+        for t in range(1, T):
+            for i in range(N):
+                temp, max_index = 0, 0
+                for j in range(N):
+                    res = delta[t - 1][j] * self.A[j][i]
+                    if res > temp:
+                        temp = res
+                        max_index = j
+
+                delta[t][i] = temp * self.B[i][self.O[t]]  # delta
+                psi[t][i] = max_index
+
+        # step3: 终止
+        p = max(delta[-1])
+        for i in range(N):
+            if delta[-1][i] == p:
+                i_T = i
+
+        # step4：backtrack
+        path = [0] * T
+        i_t = i_T
+        for t in reversed(range(T - 1)):
+            i_t = psi[t + 1][i_t]
+            path[t] = i_t
+        path[-1] = i_T
+
+        return path
 
 
-A = [[0.5, 0.2, 0.3], [0.3, 0.5, 0.2], [0.2, 0.3, 0.5]]
-B = [[0.5, 0.5], [0.4, 0.6], [0.7, 0.3]]
-pi = [0.2, 0.4, 0.4]
-O = [0, 1, 0, 1]
-print(hmm_viterbi(A, B, pi, O))
+if __name__ == '__main__':
+    # HMM算法初始化
+    hmm = HMM()
 
+    # 前向算法
+    print(hmm.hmm_forward())
 
+    # 后向算法
+    print(hmm.hmm_backward())
+
+    # 维特比算法
+    print(hmm.hmm_viterbi())
