@@ -29,7 +29,9 @@ class HMM:
         :return: 观测序列概率P(O|λ)、前向概率alpha
         """
         # 算法10.2的流程
+        # 观测序列总数
         T = len(self.O)
+        # 状态总数
         N = len(self.A[0])
 
         # (1) 初值
@@ -92,12 +94,12 @@ class HMM:
         delta = np.zeros((T, N))
         psi   = np.zeros((T, N), dtype=int)
 
-        # step1: 初始化
+        # (1) 初始化
         for i in range(N):
             delta[0][i] = self.pi[i] * self.B[i][self.O[0]]
             psi[0][i] = 0
 
-        # step2: 递推
+        # (2) 递推
         for t in range(1, T):
             for i in range(N):
                 temp, max_index = 0, 0
@@ -110,13 +112,13 @@ class HMM:
                 delta[t][i] = temp * self.B[i][self.O[t]]  # delta
                 psi[t][i] = max_index
 
-        # step3: 终止
+        # (3) 终止
         p = max(delta[-1])
         for i in range(N):
             if delta[-1][i] == p:
                 i_T = i
 
-        # step4：backtrack
+        # (4) 最优路径回溯
         path = [0] * T
         i_t = i_T
         for t in reversed(range(T - 1)):
