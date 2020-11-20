@@ -115,9 +115,7 @@ class HMM:
 
         # (3) 终止
         p = max(delta[-1])
-        for i in range(N):
-            if delta[-1][i] == p:
-                i_T = i
+        i_T = np.argmax(delta[-1])
 
         # (4) 最优路径回溯
         path = [0] * T
