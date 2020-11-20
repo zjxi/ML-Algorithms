@@ -22,7 +22,7 @@ class HMM:
                   [0.7, 0.3]]
 
         # 观测序列 (0:红色, 1:白色)
-        self.O = [0, 1, 0, 1]
+        self.O = [0, 1, 0]
 
     def hmm_forward(self):
         """
@@ -124,8 +124,8 @@ class HMM:
         i_t = i_T
         for t in reversed(range(T - 1)):
             i_t = psi[t + 1][i_t]
-            path[t] = i_t
-        path[-1] = i_T
+            path[t] = i_t + 1  # 这里加i_t+1是为了满足书中答案，即下标从1算的结果
+        path[-1] = i_T + 1
 
         return path
 
