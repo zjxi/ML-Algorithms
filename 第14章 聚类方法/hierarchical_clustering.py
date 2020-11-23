@@ -28,7 +28,7 @@ class HierarchicalClustering:
         初始化逻辑回归的各类参数
         :param trainData: 训练特征向量集
         """
-        self.train_data = trainData
+        self.train_data = np.mat(trainData)
 
     @staticmethod
     def calc_euclidean_distance(xi, xj):
@@ -38,7 +38,7 @@ class HierarchicalClustering:
         :param xj: 样本xj
         :return: xi、xj的欧氏距离
         """
-        return np.square(np.sum((xi - xj) * (xi - xj)))
+        return np.sqrt(np.sum(np.square(xi - xj)))
 
     @staticmethod
     def calc_manhattan_distance(xi, xj):
@@ -72,7 +72,7 @@ class HierarchicalClustering:
         row, col = np.shape(self.train_data)
         # (1) 计算n个样本两两之间的欧氏距离{dij}, 记作矩阵D = [dij]nxn
         # 在这里 矩阵D 等价于 D_ij
-        D_ij = np.zeros((row, col))
+        D_ij = np.zeros((row, row))
         for i in range(row):
             for j in range(row):
                 if i != j:
@@ -86,50 +86,61 @@ class HierarchicalClustering:
         cnt = row
         for i in range(row):
             G_i.append([i])
+        # (3) 合并类间距离最小的两个类，其中最短距离为类间距离，构建一个新类
+        # 声明任意两个类之间的最短距离min_dis
+        # i_idx, j_idx 分别为 最短距离的样本i、样本j的下标
+        min_dis = D_ij[0][1]
+        i_idx, j_idx = 0, 1
+        for i in range(row):
+            for j in range(row):
+                if i != j:
+                    if D_ij[i][j] < min_dis:
+                        min_dis = D_ij[i][j]
+                        i_idx, j_idx = i, j
 
-        while 1:
-            # (3) 合并类间距离最小的两个类，其中最短距离为类间距离，构建一个新类
-            # 声明任意两个类之间的最短距离min_dis
-            # i_idx, j_idx 分别为 最短距离的样本i、样本j的下标
-            min_dis = D_ij[0][1]
-            i_idx, j_idx = 0, 1
-            for i in range(row):
-                for j in range(row):
-                    if i != j:
-                        if D_ij[i][j] < min_dis:
-                            min_dis = D_ij[i][j]
-                            i_idx, j_idx = i, j
+        # 合并成新类，类的下标加1
+        G_i.append([i_idx, j_idx])
 
-            # 合并成新类，类的下标加1
-            G_i.append([i_idx, j_idx])
-            cnt += 1
-            # 然后将被合并的两个样本的列表分别清空
-            G_i[i_idx].clear()
-            G_i[j_idx].clear()
+        # 然后将被合并的两个样本的列表分别删除
+        G_i.remove([i_idx])
+        G_i.remove([j_idx])
 
-            # (4) 计算新类与当前各类的距离。若类的个数为1，终止计算，否则回到步(3)
-            for i in G_i[cnt-1]:
-                for lis in G_i:
-                    if len(lis) != 0:
-                        for j in lis:
-                            if D_ij[i][j] < min_dis:
-                                min_dis = D_ij[i][j]
-                                i_idx, j_idx = i, j
+        # (4) 计算新类与当前各类的距离。若类的个数为1，终止计算，否则回到步(3)
 
+        # for i in G_i[len(G_i)-1]:
+        #     for k, lis in enumerate(G_i):
+        #         if len(lis) == 0 and k == len(G_i)-1:
+        #             continue
+        #         for j in lis:
+        #             if D_ij[i][j] < min_dis and i != j:
+        #                 min_dis = D_ij[i][j]
+        #                 i_idx, j_idx = i, j
+        #
+        # print(i_idx, j_idx)
+        # # 合并成新类，类的下标加1
+        # if i_idx or j_idx in G_i[len(G_i) - 1]:
+        #     if i_idx not in G_i[len(G_i) - 1]:
+        #         G_i.append(G_i[len(G_i) - 1].append(i_idx))
+        #     else:
+        #         G_i.append(G_i[len(G_i) - 1].append(j_idx))
+        # else:
+        #     G_i.append([i_idx, j_idx])
+        #
+        # # 然后将被合并的两个样本的列表分别清空
+        # G_i[i_idx].clear()
+        # G_i[j_idx].clear()
 
-
-
-            # 计算当前类的个数
-            cls_cur = 0
-            for i in range(len(G_i)):
-                if len(G_i[i]) != 0:
-                    cls_cur += 1
-            # 若当前类的个数为需要聚类的个数，则终止循环，聚类结束
-            if cls_cur == cls_num:
-                break
+            # # 计算当前类的个数
+            # cls_cur = 0
+            # for i in range(len(G_i)):
+            #     if len(G_i[i]) != 0:
+            #         cls_cur += 1
+            # # 若当前类的个数为需要聚类的个数，则终止循环，聚类结束
+            # if cls_cur == cls_num:
+            #     break
 
         # 返回最终的聚类
-        return G_i[len(G_i)-1]
+        return G_i
 
 
 if __name__ == '__main__':
