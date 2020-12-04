@@ -83,7 +83,7 @@ class HierarchicalClustering:
         # 首先根据row个样本构建row个类, 即Gi = {xi}, i=1, 2, ... ,row
         # 为了方便计算这里只需要存储每个样本的序号即可
         # i为样本的序号，true代表当前样本没有被合并，False代表被合并为新类
-        cnt = row
+
         for i in range(row):
             G_i.append([i])
         # (3) 合并类间距离最小的两个类，其中最短距离为类间距离，构建一个新类
@@ -91,19 +91,24 @@ class HierarchicalClustering:
         # i_idx, j_idx 分别为 最短距离的样本i、样本j的下标
         min_dis = D_ij[0][1]
         i_idx, j_idx = 0, 1
-        for i in range(row):
-            for j in range(row):
+        # for i in range(row):
+        #     for j in range(row):
+        #         if i != j:
+        #             if D_ij[i][j] < min_dis:
+        #                 min_dis = D_ij[i][j]
+        #                 i_idx, j_idx = i, j
+        for i, i_list in enumerate(G_i):
+            for j, j_list in enumerate(G_i):
                 if i != j:
                     if D_ij[i][j] < min_dis:
-                        min_dis = D_ij[i][j]
                         i_idx, j_idx = i, j
 
         # 合并成新类，类的下标加1
         G_i.append([i_idx, j_idx])
 
         # 然后将被合并的两个样本的列表分别删除
-        G_i.remove([i_idx])
-        G_i.remove([j_idx])
+        del G_i[i_idx]
+        del G_i[j_idx-1]
 
         # (4) 计算新类与当前各类的距离。若类的个数为1，终止计算，否则回到步(3)
 
@@ -130,14 +135,14 @@ class HierarchicalClustering:
         # G_i[i_idx].clear()
         # G_i[j_idx].clear()
 
-            # # 计算当前类的个数
-            # cls_cur = 0
-            # for i in range(len(G_i)):
-            #     if len(G_i[i]) != 0:
-            #         cls_cur += 1
-            # # 若当前类的个数为需要聚类的个数，则终止循环，聚类结束
-            # if cls_cur == cls_num:
-            #     break
+        # # 计算当前类的个数
+        # cls_cur = 0
+        # for i in range(len(G_i)):
+        #     if len(G_i[i]) != 0:
+        #         cls_cur += 1
+        # # 若当前类的个数为需要聚类的个数，则终止循环，聚类结束
+        # if cls_cur == cls_num:
+        #     break
 
         # 返回最终的聚类
         return G_i
@@ -150,3 +155,4 @@ if __name__ == '__main__':
     hc = HierarchicalClustering(train_data)
     cls = hc.clustering(3)
     print(cls)
+

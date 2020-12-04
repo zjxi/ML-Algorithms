@@ -23,6 +23,7 @@ def load_data(filename):
 
     return feat
 
+
 # 计算欧式距离
 def euclDistance(vector1, vector2):
     return sqrt(sum(pow(vector2 - vector1, 2)))  # pow()是自带函数
@@ -94,8 +95,7 @@ def showCluster(dataSet, k, centroids, clusterAssment):
 
     mark = ['or', 'ob', 'og', 'ok', '^r', '+r', 'sr', 'dr', '<r', 'pr']
     if k > len(mark):
-        print
-        "Sorry! Your k is too large! Please contact Zouxy"
+        print("Sorry! Your k is too large! Please contact Zouxy")
         return 1
 
     # draw all samples
